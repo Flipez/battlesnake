@@ -1,0 +1,17 @@
+name: battlesnake
+version: 0.1.0
+
+authors:
+  - Robert Müller <robert.mueller@hetzner.com>
+
+targets:
+  battlesnake:
+    main: src/battlesnake.cr
+
+crystal: 0.24.2
+
+license: MIT
+
+dependencies:
+  kemal:
+    github: kemalcr/kemal
