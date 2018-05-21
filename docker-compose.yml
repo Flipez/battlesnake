@@ -4,8 +4,8 @@ services:
     build: .
     network_mode: host
     ports:
-      - '127.0.0.1:3001:3001'
-    command: crystal run /app/src/battlesnake.cr -- -p 3001
+      - '127.0.0.1:3001:3003'
+    command: crystal run /app/src/battlesnake.cr -- -p 3003
   enemy-battlesnake.cr:
     build: .
     network_mode: host

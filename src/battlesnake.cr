@@ -1,55 +1,79 @@
 require "./battlesnake/version"
+require "./battlesnake/point"
 require "./battlesnake/snake"
-require "./battlesnake/me"
-require "./battlesnake/enemy"
 require "./battlesnake/game"
 require "kemal"
 
-moves = ["up", "up", "right", "right", "down",  "down", "left", "left"]
-next_move = 0
+module Battlesnake
+  # Configure own snake for game start
+  moves = ["up", "down", "left", "right"]
+  game = Game.new(
+           color:           "#FF0000",
+           secondary_color: "#00FF00",
+           head_url:        "https://www.fillmurray.com/200/200",
+           taunt:           "Was 1 Nice Snake am start been",
+           head_type:       "pixel",
+           tail_type:       "pixel"
+         )
 
-# Configure own snake for game start
-me = Battlesnake::Me.new(
-       color:           "#FF0000",
-       secondary_color: "#00FF00",
-       head_url:        "https://www.fillmurray.com/200/200",
-       taunt:           "Was 1 Nice Snake am start been",
-       head_type:       "pixel",
-       tail_type:       "pixel"
-     )
-game = Battlesnake::Game.new(me)
+  def self.is_free_point?(target : Point, game : Game, snakes : Array(Snake))
+    valid_x = 0..game.width - 1
+    valid_y = 0..game.height - 1
 
+    return false unless valid_x.covers? target.x
+    return false unless valid_y.covers? target.y
 
-post "/start" do |env|
-  # Expect the following json:
-  #  {"width" => 20_i64, "height" => 20_i64, "game_id" => 1_i64}
-  params = env.params.json
+    points = snakes.map{ |snake|
+      snake.body
+    }.flatten
 
-  # Set game params based on the server request
-  game.id     = params["game_id"].as(Int64)
-  game.height = params["height"].as(Int64)
-  game.width  = params["width"].as(Int64)
+    points.each { |point|
+      return false if point.x == target.x && point.y == target.y
+    }
 
-  p game
-
-  # Send own snake to register
-  game.me.to_json
-end
-
-post "/move" do |env|
-  game.update(env.params.json)
-
-  p game
-
-  next_move = if moves.size() - 1 == next_move
-    0
-  else
-    next_move + 1
+    true
   end
 
-  {
-    "move": moves[next_move]
-  }.to_json
+  post "/start" do |env|
+    # Expect the following json:
+    #  {"width" => 20_i64, "height" => 20_i64, "game_id" => 1_i64}
+    params = env.params.json
+
+    # Set game params based on the server request
+    game.id     = params["game_id"].as(Int64)
+    game.height = params["height"].as(Int64)
+    game.width  = params["width"].as(Int64)
+
+    # Send own snake to register
+    game.start
+  end
+
+  post "/move" do |env|
+    params = env.params.json.as(Hash)
+    me = Snake.new(params["you"].as(Hash))
+    foods = params["food"].as(Hash)["data"].as(Array).map{ |food|
+      Point.new(food.as(Hash)["x"].as(Int64),
+               food.as(Hash)["y"].as(Int64))
+    }
+    snakes = params["snakes"].as(Hash)["data"].as(Array).map{ |snake|
+      Snake.new(snake.as(Hash))
+    }
+
+    next_target = me.nearest_food(foods)
+    next_move = me.next_move(next_target)
+    next_entry = me.next_point(next_move)
+    p next_move
+    unless is_free_point?(next_entry, game, snakes)
+      avail_moves = moves.delete(next_move)
+      moves.each{ |move|
+        if is_free_point?(me.next_point(move), game, snakes)
+          next_move = move
+        end
+      }
+    end
+    p next_move
+    { "move": next_move }.to_json
 end
 
 Kemal.run
+end
