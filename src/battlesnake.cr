@@ -4,17 +4,16 @@ require "kemal"
 moves = ["up", "up", "right", "right", "down",  "down", "left", "left"]
 next_move = 0
 
-game = Battlesnake::Game.new
-
 # Configure own snake for game start
-own_snake = Battlesnake::Snake.new(
-              color: "#FF0000",
-              secondary_color: "#00FF00",
-              head_url: "https://www.fillmurray.com/200/200",
-              taunt: "Was 1 Nice Snake am start been",
-              head_type: "pixel",
-              tail_type: "pixel"
-            )
+me = Battlesnake::Snake.new(
+       color:           "#FF0000",
+       secondary_color: "#00FF00",
+       head_url:        "https://www.fillmurray.com/200/200",
+       taunt:           "Was 1 Nice Snake am start been",
+       head_type:       "pixel",
+       tail_type:       "pixel"
+     )
+game = Battlesnake::Game.new(me)
 
 
 post "/start" do |env|
@@ -23,16 +22,20 @@ post "/start" do |env|
   params = env.params.json
 
   # Set game params based on the server request
-  game.id = params["game_id"].as(Int64)
+  game.id     = params["game_id"].as(Int64)
   game.height = params["height"].as(Int64)
-  game.width = params["width"].as(Int64)
+  game.width  = params["width"].as(Int64)
+
+  p game
 
   # Send own snake to register
-  own_snake.to_json
+  game.me.to_json
 end
 
 post "/move" do |env|
+  game.update(env.params.json)
   params = env.params.json
+  p game
   name = params["you"].as(Hash)["name"]
   snakes = params["snakes"].as(Hash)
   enemies = snakes["data"].as(Array).select { |snake|
