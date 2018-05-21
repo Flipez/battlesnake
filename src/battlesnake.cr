@@ -1,11 +1,15 @@
-require "./battlesnake/*"
+require "./battlesnake/version"
+require "./battlesnake/snake"
+require "./battlesnake/me"
+require "./battlesnake/enemy"
+require "./battlesnake/game"
 require "kemal"
 
 moves = ["up", "up", "right", "right", "down",  "down", "left", "left"]
 next_move = 0
 
 # Configure own snake for game start
-me = Battlesnake::Snake.new(
+me = Battlesnake::Me.new(
        color:           "#FF0000",
        secondary_color: "#00FF00",
        head_url:        "https://www.fillmurray.com/200/200",
@@ -34,13 +38,9 @@ end
 
 post "/move" do |env|
   game.update(env.params.json)
-  params = env.params.json
+
   p game
-  name = params["you"].as(Hash)["name"]
-  snakes = params["snakes"].as(Hash)
-  enemies = snakes["data"].as(Array).select { |snake|
-    snake.as(Hash)["name"].as(String) != name
-  }.as(Array)
+
   next_move = if moves.size() - 1 == next_move
     0
   else
