@@ -11,7 +11,7 @@ module Battlesnake
            color:           "#FF0000",
            secondary_color: "#00FF00",
            head_url:        "https://www.fillmurray.com/200/200",
-           taunt:           "Was 1 Nice Snake am start been",
+           taunt:           "snake.cr 1.0",
            head_type:       "pixel",
            tail_type:       "pixel"
          )
@@ -64,9 +64,13 @@ module Battlesnake
     next_entry = me.next_point(next_move)
     p next_move
     unless is_free_point?(next_entry, game, snakes)
-      avail_moves = moves.delete(next_move)
-      moves.each{ |move|
-        if is_free_point?(me.next_point(move), game, snakes)
+      avail_moves = moves.dup
+      avail_moves.delete(next_move)
+      avail_moves.each{ |move|
+        is_free = is_free_point?(me.next_point(move), game, snakes)
+        p avail_moves
+        p "#{move}: #{is_free}"
+        if is_free
           next_move = move
         end
       }
