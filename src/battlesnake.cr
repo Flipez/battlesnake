@@ -1,46 +1,52 @@
 require "./battlesnake/*"
 require "kemal"
 
-module Battlesnake
-  moves = ["up", "up", "right", "right", "down",  "down", "left", "left"]
-  next_move = 0
+moves = ["up", "up", "right", "right", "down",  "down", "left", "left"]
+next_move = 0
 
-  before_post "/start" do |env|
-    puts "Setting response content type"
-    env.response.content_type = "application/json"
-  end
-  post "/start" do
-    {
-     color: "#FF0000",
-     secondary_color: "#00FF00",
-     head_url: "http://placecage.com/c/100/100",
-     taunt: "OH GOD NOT THE BEES",
-     head_type: "pixel",
-     tail_type: "pixel"
-    }.to_json
-  end
-  
-  before_post "/move" do |env|
-    puts "Setting response content type"
-    env.response.content_type = "application/json"
-  end
-  post "/move" do |env|
-    params = env.params.json
-    name = params["you"].as(Hash)["name"]
-    snakes = params["snakes"].as(Hash)
-    enemies = snakes["data"].as(Array).select { |snake|
-      snake.as(Hash)["name"].as(String) != name
-    }.as(Array)
-    next_move = if moves.size() - 1 == next_move
-      0
-    else
-      next_move + 1
-    end
+game = Battlesnake::Game.new
 
-    {
-      "move": moves[next_move]
-    }.to_json
-  end
+# Configure own snake for game start
+own_snake = Battlesnake::Snake.new(
+              color: "#FF0000",
+              secondary_color: "#00FF00",
+              head_url: "https://www.fillmurray.com/200/200",
+              taunt: "Was 1 Nice Snake am start been",
+              head_type: "pixel",
+              tail_type: "pixel"
+            )
 
-  Kemal.run
+
+post "/start" do |env|
+  # Expect the following json:
+  #  {"width" => 20_i64, "height" => 20_i64, "game_id" => 1_i64}
+  params = env.params.json
+
+  # Set game params based on the server request
+  game.id = params["game_id"].as(Int64)
+  game.height = params["height"].as(Int64)
+  game.width = params["width"].as(Int64)
+
+  # Send own snake to register
+  own_snake.to_json
 end
+
+post "/move" do |env|
+  params = env.params.json
+  name = params["you"].as(Hash)["name"]
+  snakes = params["snakes"].as(Hash)
+  enemies = snakes["data"].as(Array).select { |snake|
+    snake.as(Hash)["name"].as(String) != name
+  }.as(Array)
+  next_move = if moves.size() - 1 == next_move
+    0
+  else
+    next_move + 1
+  end
+
+  {
+    "move": moves[next_move]
+  }.to_json
+end
+
+Kemal.run
