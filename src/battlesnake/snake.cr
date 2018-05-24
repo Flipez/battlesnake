@@ -23,6 +23,10 @@ module Battlesnake
       body.first
     end
 
+    def tail
+      body.last
+    end
+
     def nearest_food(foods)
       foods_distance = {} of Float64 => Point
       foods.each{ |food|
@@ -30,6 +34,15 @@ module Battlesnake
       }
       min = foods_distance.keys.min
       foods_distance[min]
+    end
+
+    def look_around(radius=1)
+      x = (head.x - radius..head.x + radius).to_a
+      y = (head.y - radius..head.y + radius).to_a
+      around = x.product(y)
+      around.map{ |x,y|
+        Point.new(x.as(Int64),y.as(Int64))
+      }
     end
 
     def next_point(move : String)

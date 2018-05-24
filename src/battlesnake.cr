@@ -7,6 +7,12 @@ require "kemal"
 module Battlesnake
   # Configure own snake for game start
   moves = ["up", "down", "left", "right"]
+  alternative_moves = {
+    "up": ["left", "right"],
+    "left": ["up", "down"],
+    "right": ["up", "down"],
+    "down": ["left", "right"]
+  }
   game = Game.new(
            color:           "#FF0000",
            secondary_color: "#00FF00",
@@ -27,9 +33,7 @@ module Battlesnake
       snake.body
     }.flatten
 
-    points.each { |point|
-      return false if point.x == target.x && point.y == target.y
-    }
+    points.each { |point| return false if point == target }
 
     true
   end
@@ -51,31 +55,36 @@ module Battlesnake
   post "/move" do |env|
     params = env.params.json.as(Hash)
     me = Snake.new(params["you"].as(Hash))
-    foods = params["food"].as(Hash)["data"].as(Array).map{ |food|
-      Point.new(food.as(Hash)["x"].as(Int64),
-               food.as(Hash)["y"].as(Int64))
-    }
-    snakes = params["snakes"].as(Hash)["data"].as(Array).map{ |snake|
-      Snake.new(snake.as(Hash))
+    foods = params["food"].as(Hash)["data"].as(Array).map{ |food| Point.from_hash(food.as(Hash)) }
+    snakes = params["snakes"].as(Hash)["data"].as(Array).map{ |snake| Snake.new(snake.as(Hash)) }
+
+    free_points_around = me.look_around.select { |point|
+      is_free_point?(point, game, snakes)
     }
 
-    next_target = me.nearest_food(foods)
+    p me.health
+    next_target = if me.health >= 75_i64
+                    p "head tail"
+                    me.tail
+                  else
+                    p "head food"
+                    me.nearest_food(foods)
+                  end
     next_move = me.next_move(next_target)
     next_entry = me.next_point(next_move)
-    p next_move
+    p "#{next_move} to #{next_target.inspect} from #{me.head.inspect}"
+
+
     unless is_free_point?(next_entry, game, snakes)
-      avail_moves = moves.dup
-      avail_moves.delete(next_move)
+      avail_moves = alternative_moves[next_move].dup
+
       avail_moves.each{ |move|
-        is_free = is_free_point?(me.next_point(move), game, snakes)
-        p avail_moves
-        p "#{move}: #{is_free}"
-        if is_free
-          next_move = move
-        end
+        p "alternative move: #{move}"
+        next_entry = me.next_point(move)
+        next_move = move if is_free_point?(next_entry, game, snakes)
       }
     end
-    p next_move
+
     { "move": next_move }.to_json
 end
 
