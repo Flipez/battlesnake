@@ -8,3 +8,4 @@ deploy:
   file: battlesnake
   on:
     repo: Flipez/battlesnake
+    tags: true
