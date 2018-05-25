@@ -1,4 +1,5 @@
 # battlesnake
+[![Build Status](https://travis-ci.org/Flipez/battlesnake.svg?branch=master)](https://travis-ci.org/Flipez/battlesnake)
 
 This is my first crystal project.
 
