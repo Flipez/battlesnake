@@ -3,8 +3,12 @@ require "./battlesnake/point"
 require "./battlesnake/snake"
 require "./battlesnake/game"
 require "kemal"
+require "logger"
 
 module Battlesnake
+  LOGGER = Logger.new(STDOUT)
+  LOGGER.level = Logger::DEBUG
+
   # Configure own snake for game start
   moves = ["up", "down", "left", "right"]
   alternative_moves = {
@@ -14,10 +18,10 @@ module Battlesnake
     "down": ["left", "right"]
   }
   game = Game.new(
-           color:           "#FF0000",
-           secondary_color: "#00FF00",
-           head_url:        "https://www.fillmurray.com/200/200",
-           taunt:           "snake.cr 1.0",
+           color:           "#FC5299",
+           secondary_color: "#52FCB5",
+           head_url:        "http://steamavatars.co/wp-content/uploads/2016/01/funny_doge_steam_avatars.jpg",
+           taunt:           "Battlesnake.cr v" + VERSION,
            head_type:       "pixel",
            tail_type:       "pixel"
          )
@@ -62,24 +66,23 @@ module Battlesnake
       is_free_point?(point, game, snakes)
     }
 
-    p me.health
     next_target = if me.health >= 75_i64
-                    p "head tail"
+                    LOGGER.debug("head tail")
                     me.tail
                   else
-                    p "head food"
+                    LOGGER.debug("head food")
                     me.nearest_food(foods)
                   end
     next_move = me.next_move(next_target)
     next_entry = me.next_point(next_move)
-    p "#{next_move} to #{next_target.inspect} from #{me.head.inspect}"
+    LOGGER.debug("#{next_move} to #{next_target.inspect} from #{me.head.inspect}")
 
 
     unless is_free_point?(next_entry, game, snakes)
       avail_moves = alternative_moves[next_move].dup
 
       avail_moves.each{ |move|
-        p "alternative move: #{move}"
+        LOGGER.debug("alternative move: #{move}")
         next_entry = me.next_point(move)
         next_move = move if is_free_point?(next_entry, game, snakes)
       }
