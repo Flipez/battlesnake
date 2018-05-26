@@ -6,8 +6,9 @@ module Battlesnake
     property id     : String
     property health : Int64
     property body   : Array(Battlesnake::Point)
+    property foods  : Array(Battlesnake::Point)
 
-    def initialize(params)
+    def initialize(params, @foods)
       @name = params["name"].as(String)
       @taunt = params["taunt"].to_s.as(String)
       @length = params["length"].as(Int64)
@@ -27,7 +28,7 @@ module Battlesnake
       body.last
     end
 
-    def nearest_food(foods)
+    def nearest_food
       foods_distance = {} of Float64 => Point
       foods.each{ |food|
         foods_distance[food.distance(body.first)] = food
