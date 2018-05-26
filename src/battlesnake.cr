@@ -17,14 +17,7 @@ module Battlesnake
     "right": ["up", "down"],
     "down": ["left", "right"]
   }
-  game = Game.new(
-           color:           "#FC5299",
-           secondary_color: "#52FCB5",
-           head_url:        "http://steamavatars.co/wp-content/uploads/2016/01/funny_doge_steam_avatars.jpg",
-           taunt:           "Battlesnake.cr v" + VERSION,
-           head_type:       "pixel",
-           tail_type:       "pixel"
-         )
+  game = Game.new
 
   def self.is_free_point?(target : Point, game : Game, snakes : Array(Snake))
     valid_x = 0..game.width - 1
