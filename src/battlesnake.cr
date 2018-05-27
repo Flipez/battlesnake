@@ -53,9 +53,9 @@ module Battlesnake
     params = env.params.json.as(Hash)
 
     foods = params["food"].as(Hash)["data"].as(Array).map{ |food| Point.from_hash(food.as(Hash)) }
-    me = Snake.new(params["you"].as(Hash), foods)
+    me = Snake.new(params["you"].as(Hash), foods, game)
     snakes = params["snakes"].as(Hash)["data"].as(Array).map { |snake|
-      Snake.new(snake.as(Hash), foods)
+      Snake.new(snake.as(Hash), foods, game)
     }
 
     free_points_around = me.look_around.select { |point|

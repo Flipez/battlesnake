@@ -9,8 +9,9 @@ module Battlesnake
     property health : Int64
     property body   : Array(Battlesnake::Point)
     property foods  : Array(Battlesnake::Point)
+    property game   : Battlesnake::Game
 
-    def initialize(params, @foods)
+    def initialize(params, @foods, @game)
       @name = params["name"].as(String)
       @taunt = params["taunt"].to_s.as(String)
       @length = params["length"].as(Int64)
@@ -78,7 +79,7 @@ module Battlesnake
 
       if enemy_closer
         LOGGER.debug("head tail")
-        tail
+        game.center
       else
         LOGGER.debug("head food")
         nearest_food
