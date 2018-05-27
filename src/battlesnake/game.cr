@@ -35,7 +35,6 @@ module Battlesnake
       x_center = x.to_a[x.size / 2]
       y_center = y.to_a[y.size / 2]
 
-      Point.new((1_i64..width).to_a[(1_i64..width).size / 2])
       Point.new(x_center, y_center)
     end
 
