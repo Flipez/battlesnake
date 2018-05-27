@@ -51,6 +51,7 @@ module Battlesnake
 
   post "/move" do |env|
     params = env.params.json.as(Hash)
+
     foods = params["food"].as(Hash)["data"].as(Array).map{ |food| Point.from_hash(food.as(Hash)) }
     me = Snake.new(params["you"].as(Hash), foods)
     snakes = params["snakes"].as(Hash)["data"].as(Array).map { |snake|
@@ -61,14 +62,7 @@ module Battlesnake
       is_free_point?(point, game, snakes)
     }
 
-    next_target = if me.health >= 75_i64
-                    LOGGER.debug("head tail")
-                    me.tail
-                  else
-                    LOGGER.debug("head food")
-                    me.nearest_food
-                  end
-    next_move = me.next_move(next_target)
+    next_move = me.next_move(me.next_target)
     next_entry = me.next_point(next_move)
     LOGGER.debug("#{next_move} to #{next_target.inspect} from #{me.head.inspect}")
 

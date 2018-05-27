@@ -1,5 +1,7 @@
 module Battlesnake
   class Snake
+    MOVES = { "up": 0, "down": 0, "left": 0, "right": 0 }
+
     property name   : String
     property taunt  : String
     property length : Int64
@@ -61,6 +63,16 @@ module Battlesnake
       end
 
       point
+    end
+
+    def next_target
+      if me.health >= 75_i64
+        LOGGER.debug("head tail")
+        tail
+      else
+        LOGGER.debug("head food")
+        nearest_food
+      end
     end
 
     def next_move(point : Point)
