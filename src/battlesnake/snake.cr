@@ -65,8 +65,18 @@ module Battlesnake
       point
     end
 
-    def next_target
-      if health >= 75_i64
+    def next_target(snakes)
+      snakes.reject{|s| s.id == id}
+      LOGGER.debug("Got #{snakes.size} enemy snakes")
+      enemy_distance = snakes.map { |s|
+        s.head.distance(nearest_food)
+      }
+
+      enemy_closer = enemy_distance.any? { |dist|
+        head.distance(nearest_food) > dist
+      }
+
+      if enemy_closer
         LOGGER.debug("head tail")
         tail
       else
