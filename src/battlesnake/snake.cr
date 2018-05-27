@@ -66,7 +66,7 @@ module Battlesnake
     end
 
     def next_target
-      if me.health >= 75_i64
+      if health >= 75_i64
         LOGGER.debug("head tail")
         tail
       else

@@ -64,7 +64,7 @@ module Battlesnake
 
     next_move = me.next_move(me.next_target)
     next_entry = me.next_point(next_move)
-    LOGGER.debug("#{next_move} to #{next_target.inspect} from #{me.head.inspect}")
+    LOGGER.debug("#{next_move} to #{me.next_target.inspect} from #{me.head.inspect}")
 
 
     unless is_free_point?(next_entry, game, snakes)
