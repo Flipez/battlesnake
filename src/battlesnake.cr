@@ -12,18 +12,34 @@ module Battlesnake
   # Configure own snake for game start
   game = Game.new
 
-  def self.is_free_point?(target : Point, game : Game, snakes : Array(Snake))
+  def self.is_free_point?(target : Point, game : Game, snakes : Array(Snake), me : Snake)
     valid_x = 0..game.width - 1
     valid_y = 0..game.height - 1
 
     return false unless valid_x.covers? target.x
     return false unless valid_y.covers? target.y
 
-    points = snakes.map{ |snake|
-      snake.body
-    }.flatten
+    # get all enemie snakes and me
+    enemies = snakes.reject{|s| s.id == me.id}
 
-    points.each { |point| return false if point == target }
+    occupied_points = [] of Battlesnake::Point
+
+    # Add the current position of each snake including me as occupied
+    snakes.each { |snake|
+      occupied_points += snake.body
+    }
+
+    # Try to predict enemy movement
+    enemies.each { |enemy|
+      if enemy.length >= me.length
+        enemy_move = enemy.next_move(enemy.nearest_food)
+        occupied_points << enemy.next_point(enemy_move)
+      end
+    }
+
+    occupied_points.flatten.each { |point|
+      return false if point == target
+    }
 
     true
   end
@@ -52,7 +68,7 @@ module Battlesnake
     }
 
     free_points_around = me.look_around.select { |point|
-      is_free_point?(point, game, snakes)
+      is_free_point?(point, game, snakes, me)
     }
 
     next_target = me.next_target(snakes)
