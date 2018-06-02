@@ -1,7 +1,5 @@
 module Battlesnake
   class Snake
-    MOVES = { "up": 0, "down": 0, "left": 0, "right": 0 }
-
     property name   : String
     property taunt  : String
     property length : Int64
@@ -40,13 +38,15 @@ module Battlesnake
       foods_distance[min]
     end
 
-    def look_around(radius=1)
-      x = (head.x - radius..head.x + radius).to_a
-      y = (head.y - radius..head.y + radius).to_a
-      around = x.product(y)
-      around.map{ |x,y|
-        Point.new(x.as(Int64),y.as(Int64))
-      }
+    def look_around
+      points = [] of Battlesnake::Point
+
+      points << Point.new(head.x + 1, head.y)
+      points << Point.new(head.x - 1, head.y)
+      points << Point.new(head.x, head.y + 1)
+      points << Point.new(head.x, head.y - 1)
+
+      points
     end
 
     def next_point(move : String)
@@ -67,7 +67,7 @@ module Battlesnake
     end
 
     def next_target(snakes)
-      snakes.reject{|s| s.id == id}
+      snakes = snakes.reject{|s| s.id == id}
       LOGGER.debug("Got #{snakes.size} enemy snakes")
       enemy_distance = snakes.map { |s|
         s.head.distance(nearest_food)

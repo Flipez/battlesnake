@@ -10,13 +10,6 @@ module Battlesnake
   LOGGER.level = Logger::DEBUG
 
   # Configure own snake for game start
-  moves = ["up", "down", "left", "right"]
-  alternative_moves = {
-    "up": ["left", "right"],
-    "left": ["up", "down"],
-    "right": ["up", "down"],
-    "down": ["left", "right"]
-  }
   game = Game.new
 
   def self.is_free_point?(target : Point, game : Game, snakes : Array(Snake))
@@ -62,19 +55,12 @@ module Battlesnake
       is_free_point?(point, game, snakes)
     }
 
-    next_move = me.next_move(me.next_target(snakes))
-    next_entry = me.next_point(next_move)
+    next_target = me.next_target(snakes)
+    next_point = free_points_around.sort_by { |point|
+      point.distance(next_target)
+    }.first
 
-
-    unless is_free_point?(next_entry, game, snakes)
-      avail_moves = alternative_moves[next_move].dup
-
-      avail_moves.each{ |move|
-        LOGGER.debug("alternative move: #{move}")
-        next_entry = me.next_point(move)
-        next_move = move if is_free_point?(next_entry, game, snakes)
-      }
-    end
+    next_move = me.next_move(next_point)
 
     { "move": next_move }.to_json
 end
