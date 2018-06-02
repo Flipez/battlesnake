@@ -15,10 +15,10 @@ module Battlesnake
       @length = params["length"].as(Int64)
       @id = params["id"].as(String)
       @health = params["health"].as(Int64)
-      @body = params["body"].as(Hash)["data"].as(Array).map{ |point|
+      @body = params["body"].as(Hash)["data"].as(Array).map do |point|
         Point.new(point.as(Hash)["x"].as(Int64),
                   point.as(Hash)["y"].as(Int64))
-      }
+      end
     end
 
     def head
@@ -31,9 +31,9 @@ module Battlesnake
 
     def nearest_food
       foods_distance = {} of Float64 => Point
-      foods.each{ |food|
+      foods.each do |food|
         foods_distance[food.distance(body.first)] = food
-      }
+      end
       min = foods_distance.keys.min
       foods_distance[min]
     end
@@ -69,13 +69,13 @@ module Battlesnake
     def next_target(snakes)
       snakes = snakes.reject{|s| s.id == id}
       LOGGER.debug("Got #{snakes.size} enemy snakes")
-      enemy_distance = snakes.map { |s|
+      enemy_distance = snakes.map do |s|
         s.head.distance(nearest_food)
-      }
+      end
 
-      enemy_closer = enemy_distance.any? { |dist|
+      enemy_closer = enemy_distance.any? do |dist|
         head.distance(nearest_food) > dist
-      }
+      end
 
       if enemy_closer
         LOGGER.debug("head tail")
@@ -102,5 +102,4 @@ module Battlesnake
       end
     end
   end
-
 end

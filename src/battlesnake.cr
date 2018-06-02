@@ -19,27 +19,27 @@ module Battlesnake
     return false unless valid_x.covers? target.x
     return false unless valid_y.covers? target.y
 
-    # get all enemie snakes and me
-    enemies = snakes.reject{|s| s.id == me.id}
+    # get all enemie snakes
+    enemies = snakes.reject { |s| s.id == me.id }
 
     occupied_points = [] of Battlesnake::Point
 
     # Add the current position of each snake including me as occupied
-    snakes.each { |snake|
+    snakes.each do |snake|
       occupied_points += snake.body
-    }
+    end
 
     # Try to predict enemy movement
-    enemies.each { |enemy|
+    enemies.each do |enemy|
       if enemy.length >= me.length
         enemy_move = enemy.next_move(enemy.nearest_food)
         occupied_points << enemy.next_point(enemy_move)
       end
-    }
+    end
 
-    occupied_points.flatten.each { |point|
+    occupied_points.flatten.each do |point|
       return false if point == target
-    }
+    end
 
     true
   end
@@ -63,18 +63,18 @@ module Battlesnake
 
     foods = params["food"].as(Hash)["data"].as(Array).map{ |food| Point.from_hash(food.as(Hash)) }
     me = Snake.new(params["you"].as(Hash), foods, game)
-    snakes = params["snakes"].as(Hash)["data"].as(Array).map { |snake|
+    snakes = params["snakes"].as(Hash)["data"].as(Array).map do |snake|
       Snake.new(snake.as(Hash), foods, game)
-    }
+    end
 
-    free_points_around = me.look_around.select { |point|
+    free_points_around = me.look_around.select do |point|
       is_free_point?(point, game, snakes, me)
-    }
+    end
 
     next_target = me.next_target(snakes)
-    next_point = free_points_around.sort_by { |point|
+    next_point = free_points_around.sort_by do |point|
       point.distance(next_target)
-    }.first
+    end.first
 
     next_move = me.next_move(next_point)
 
