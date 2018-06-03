@@ -1,22 +1,18 @@
 require "./spec_helper"
 describe "Battlesnake" do
   it "eats shorter snake" do
-    body = File.read("./spec/fixtures/game_start")
-    post "/start", headers: HTTP::Headers{"Content-Type" => "application/json"}, body: body
+    post "/start", headers: Memoized.header, body: File.read("./spec/fixtures/game_start")
 
-    body = File.read("./spec/fixtures/collision_shorter_enemy")
-    post "/move", headers: HTTP::Headers{"Content-Type" => "application/json"}, body: body
+    post "/move", headers: Memoized.header, body: File.read("./spec/fixtures/collision_shorter_enemy")
 
-    response.body.should eq "{\"move\":\"down\"}"
+    response.body.should contain "down"
   end
 
   it "avoids longer snake" do
-    body = File.read("./spec/fixtures/game_start")
-    post "/start", headers: HTTP::Headers{"Content-Type" => "application/json"}, body: body
+    post "/start", headers: Memoized.header, body: File.read("./spec/fixtures/game_start")
 
-    body = File.read("./spec/fixtures/collision_longer_enemy")
-    post "/move", headers: HTTP::Headers{"Content-Type" => "application/json"}, body: body
+    post "/move", headers: Memoized.header, body: File.read("./spec/fixtures/collision_longer_enemy")
 
-    response.body.should eq "{\"move\":\"right\"}"
+    response.body.should contain "right"
   end
 end
