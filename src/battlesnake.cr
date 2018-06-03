@@ -60,6 +60,7 @@ module Battlesnake
 
   post "/move" do |env|
     params = env.params.json.as(Hash)
+    game.turn = params["turn"].as(Int64)
 
     foods = params["food"].as(Hash)["data"].as(Array).map{ |food| Point.from_hash(food.as(Hash)) }
     me = Snake.new(params["you"].as(Hash), foods, game)
