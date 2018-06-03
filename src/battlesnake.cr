@@ -49,6 +49,10 @@ module Battlesnake
     #  {"width" => 20_i64, "height" => 20_i64, "game_id" => 1_i64}
     params = env.params.json
 
+    dump = File.new "start", "w"
+    dump.puts env.params.json.to_json
+    dump.close
+
     # Set game params based on the server request
     game.id     = params["game_id"].as(Int64)
     game.height = params["height"].as(Int64)
@@ -61,6 +65,11 @@ module Battlesnake
   post "/move" do |env|
     params = env.params.json.as(Hash)
     game.turn = params["turn"].as(Int64)
+
+    dump = File.new "turn", "w"
+    dump.puts env.params.json.to_json
+    dump.close
+
 
     foods = params["food"].as(Hash)["data"].as(Array).map{ |food| Point.from_hash(food.as(Hash)) }
     me = Snake.new(params["you"].as(Hash), foods, game)
