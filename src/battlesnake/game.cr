@@ -15,6 +15,7 @@ module Battlesnake
     property head_url        : String
     property head_type       : String
     property tail_type       : String
+    property taunt           : String
 
     def initialize
       @color = "#FC5299"
@@ -26,6 +27,7 @@ module Battlesnake
       @height = 0_i64
       @width  = 0_i64
       @turn   = 0_i64
+      @taunt  = ""
     end
 
     def center
@@ -39,11 +41,12 @@ module Battlesnake
     end
 
     def start
+      self.taunt = "#{TAUNTS.sample} (Battlesnake.cr v#{VERSION})"
       {
         color: color,
         secondary_color: secondary_color,
         head_url: head_url,
-        taunt: "#{TAUNTS.sample} (Battlesnake.cr v#{VERSION})",
+        taunt: self.taunt,
         head_type: head_type,
         tail_type: tail_type
       }.to_json

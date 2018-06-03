@@ -88,7 +88,7 @@ module Battlesnake
 
     next_move = me.next_move(next_point)
 
-    { "move": next_move }.to_json
+    { "move": next_move, "taunt": game.taunt }.to_json
 end
 
 Kemal.run
