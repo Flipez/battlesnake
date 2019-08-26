@@ -46,7 +46,7 @@ module Battlesnake
 
   post "/start" do |env|
     # Expect the following json:
-    #  {"width" => 20_i64, "height" => 20_i64, "game_id" => 1_i64}
+    #  {"width" => 20_i64, "height" => 20_i64, "game_id" => 1_i64} # 2018
     params = env.params.json
 
     dump = File.new "start", "w"
@@ -54,9 +54,11 @@ module Battlesnake
     dump.close
 
     # Set game params based on the server request
-    game.id     = params["game_id"].as(Int64)
-    game.height = params["height"].as(Int64)
-    game.width  = params["width"].as(Int64)
+    board = params["board"].as(Hash)
+
+    game.id     = params["game"].as(Hash)["id"].as(Int64)
+    game.height = board["height"].as(Int64)
+    game.width  = board["width"].as(Int64)
 
     # Send own snake to register
     game.start
@@ -71,9 +73,9 @@ module Battlesnake
     dump.close
 
 
-    foods = params["food"].as(Hash)["data"].as(Array).map{ |food| Point.from_hash(food.as(Hash)) }
+    foods = params["board"].as(Hash)["food"].as(Array).map{ |food| Point.from_hash(food.as(Hash)) }
     me = Snake.new(params["you"].as(Hash), foods, game)
-    snakes = params["snakes"].as(Hash)["data"].as(Array).map do |snake|
+    snakes = params["board"].as(Hash)["snakes"].as(Array).map do |snake|
       Snake.new(snake.as(Hash), foods, game)
     end
 
@@ -88,7 +90,7 @@ module Battlesnake
 
     next_move = me.next_move(next_point)
 
-    { "move": next_move, "taunt": game.taunt }.to_json
+    { "move": next_move }.to_json
 end
 
 Kemal.run
